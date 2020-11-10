@@ -1,8 +1,10 @@
 import { Scene } from '../framework/scene';
-import { FollowCamera, Vector3, HemisphericLight, MeshBuilder, StandardMaterial, Color3, Mesh } from 'babylonjs';
+import { FreeCamera, Vector3, Mesh, PointLight } from 'babylonjs';
 import { DOM } from '../framework/dom';
-import { SampleMaterial } from '../Materials/SampleMaterial';
 import { Player } from '../player/player';
+import * as GUI from 'babylonjs-gui';
+import { QueldanasMap } from '../map/queldanas';
+import { Client } from '../api/client';
 
 export class Game extends Scene {
   static get Key(): string{
@@ -13,41 +15,42 @@ export class Game extends Scene {
   private _cube2: Mesh;
 
   initialize(): void {
-    const camera = new FollowCamera("FollowCam", new Vector3(0, 10, -10), this.scene);
-    camera.radius = 20;
-    camera.heightOffset = 10;
-    camera.rotationOffset = 45;
-    camera.attachControl(DOM.view, true);
-
-    const light = new HemisphericLight(
-        "light",
-        new Vector3(0, -10, -10),
-        this.scene);
-
-    const mesh = MeshBuilder.CreateGround("mesh", {width:10, height: 10}, this.scene);
+    // Create camera and light
+    var light = new PointLight("Point", new Vector3(5, 10, 5), this.scene);
+    var camera = new FreeCamera("Camera", new Vector3(0, 0, -30), this.scene);
     
-    this._player = new Player(this);
+    // Attach the Controls to the canvas
+	camera.attachControl(DOM.view, true);
+	
+	var plane = Mesh.CreatePlane("plane", 2, this.scene);
+    // plane.parent = background;
+	plane.position.z = -15;
 
-    this._cube2 = MeshBuilder.CreateBox("cube", {height:1, width: 1}, this.scene);
-    this._cube2.position.set(3, 0.5, 0);
-    this._cube2.material = new StandardMaterial("matBallon", this.scene);
-    (<StandardMaterial>this._cube2.material).emissiveColor = new Color3(0, 0, 1);
+	var advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+	// var advancedTexture = GUI.AdvancedDynamicTexture.CreateForMesh(plane);
+	let client = new Client();
+	client.connect();
 
-    // SceneLoader.ImportMesh('', "Forest/", "scene.gltf", scene, function (newMeshes, particleSystems, skeletons) {
-    //   // scene.c
-    // });
-
-    const material =  new SampleMaterial("material", this.scene);
-    mesh.material = material
-
-    camera.lockedTarget = this._player.mesh;
+    var button1 = GUI.Button.CreateSimpleButton("but1", "Click Me");
+    button1.width = 1;
+    button1.height = 0.4;
+    button1.color = "white";
+    button1.fontSize = 70;
+    button1.background = "green";
+    button1.onPointerUpObservable.add(function() {
+        client.send('hello');
+    });
+    advancedTexture.addControl(button1);
+    
+	let map = new QueldanasMap(this.scene);
+	map.initialize();
   }
 
   onBeforeRender() {
-    if (this._player.mesh.intersectsMesh(this._cube2, false)) {
-      (<StandardMaterial>this._player.mesh.material).emissiveColor = new BABYLON.Color3(1, 0, 0);
-    } else {
-      (<StandardMaterial>this._player.mesh.material).emissiveColor = new BABYLON.Color3(1, 1, 0.5);
-    }
+    // if (this._player.mesh.intersectsMesh(this._cube2, false)) {
+    //   (<StandardMaterial>this._player.mesh.material).emissiveColor = new BABYLON.Color3(1, 0, 0);
+    // } else {
+    //   (<StandardMaterial>this._player.mesh.material).emissiveColor = new BABYLON.Color3(1, 1, 0.5);
+    // }
   }
 }
