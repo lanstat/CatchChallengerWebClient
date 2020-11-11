@@ -5,6 +5,7 @@ import { Player } from '../player/player';
 import * as GUI from 'babylonjs-gui';
 import { QueldanasMap } from '../map/queldanas';
 import { Client } from '../api/client';
+import { Chat } from '../components/chat';
 
 export class Game extends Scene {
   static get Key(): string{
@@ -22,26 +23,28 @@ export class Game extends Scene {
     // Attach the Controls to the canvas
 	camera.attachControl(DOM.view, true);
 	
-	var plane = Mesh.CreatePlane("plane", 2, this.scene);
-    // plane.parent = background;
-	plane.position.z = -15;
+	// var plane = Mesh.CreatePlane("plane", 2, this.scene);
+    // // plane.parent = background;
+	// plane.position.z = -15;
 
-	var advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+	// var advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 	// var advancedTexture = GUI.AdvancedDynamicTexture.CreateForMesh(plane);
-	let client = new Client();
-	client.connect();
+	// let client = new Client();
+	// client.connect();
 
-    var button1 = GUI.Button.CreateSimpleButton("but1", "Click Me");
-    button1.width = 1;
-    button1.height = 0.4;
-    button1.color = "white";
-    button1.fontSize = 70;
-    button1.background = "green";
-    button1.onPointerUpObservable.add(function() {
-        client.send('hello');
-    });
-    advancedTexture.addControl(button1);
-    
+    // var button1 = GUI.Button.CreateSimpleButton("but1", "Click Me");
+    // button1.width = 1;
+    // button1.height = 0.4;
+    // button1.color = "white";
+    // button1.fontSize = 70;
+    // button1.background = "green";
+    // button1.onPointerUpObservable.add(function() {
+    //     client.send('hello');
+    // });
+	// advancedTexture.addControl(button1);
+	let chat = new Chat();
+	chat.initialize();
+	
 	let map = new QueldanasMap(this.scene);
 	map.initialize();
   }
